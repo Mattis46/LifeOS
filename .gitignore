@@ -1,0 +1,21 @@
+# macOS
+.DS_Store
+
+# Xcode
+DerivedData/
+xcuserdata/
+*.xcuserstate
+
+# SwiftPM
+.build/
+.swiftpm/xcode/
+
+# Dependency managers
+Pods/
+Carthage/
+
+# Logs
+*.log
+
+# Env / secrets (keep keys out of git)
+.env

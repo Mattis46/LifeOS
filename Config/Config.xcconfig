@@ -1,0 +1,9 @@
+// Build-time configuration values. Replace placeholders with your project values before running on device.
+SUPABASE_URL = https://pouvvplxfrnpthhdednl.supabase.co
+SUPABASE_ANON_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBvdXZ2cGx4ZnJucHRoaGRlZG5sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUwMzc3MTIsImV4cCI6MjA4MDYxMzcxMn0.cRvYS1_O_OFQUrwDqNI_7mfSWQ7URrwHFqw3flkoLX4
+COACH_ENDPOINT = https://pouvvplxfrnpthhdednl.functions.supabase.co/coach
+
+// Signing / bundle
+PRODUCT_BUNDLE_IDENTIFIER = app.lifeos
+APP_DISPLAY_NAME = LifeOS
+DEVELOPMENT_TEAM = com.mattis
