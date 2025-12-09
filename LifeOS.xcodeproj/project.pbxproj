@@ -22,6 +22,17 @@
 		A0F9B1E728C8E60000A1E000 /* OpenAISwift in Frameworks */ = {isa = PBXBuildFile; productRef = A0F9B1E528C8E60000A1E000 /* OpenAISwift */; };
 		A0F9B1F228C8E60000A1E000 /* PlannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F9B1F028C8E60000A1E000 /* PlannerView.swift */; };
 		A0F9B1F328C8E60000A1E000 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F9B1F128C8E60000A1E000 /* SettingsView.swift */; };
+		A0F9B20728C9001A00A1E000 /* SupabaseModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F9B20628C9001A00A1E000 /* SupabaseModels.swift */; };
+		A0F9B20928C9004600A1E000 /* TaskStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F9B20828C9004600A1E000 /* TaskStore.swift */; };
+		A0F9B21228C9161D00A1E000 /* GoalStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F9B20D28C912FF00A1E000 /* GoalStore.swift */; };
+		A0F9B21328C9162100A1E000 /* HabitStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F9B20F28C9130300A1E000 /* HabitStore.swift */; };
+		A0F9B21428C9162500A1E000 /* NoteStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F9B21128C9130800A1E000 /* NoteStore.swift */; };
+		A0F9B21928C9191B00A1E000 /* CategoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F9B21728C917CB00A1E000 /* CategoryStore.swift */; };
+		A0F9B21A28C9191B00A1E000 /* ProjectStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F9B21828C917CF00A1E000 /* ProjectStore.swift */; };
+		A0F9B21E28C91C1000A1E000 /* TaskDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F9B21B28C91AD200A1E000 /* TaskDetailView.swift */; };
+		A0F9B21F28C91C1400A1E000 /* HabitDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F9B21C28C91AD600A1E000 /* HabitDetailView.swift */; };
+		A0F9B22028C91C1900A1E000 /* GoalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F9B21D28C91ADA00A1E000 /* GoalDetailView.swift */; };
+		A0F9B22128C932E200A1E000 /* RefreshBus.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F9B22228C932E200A1E000 /* RefreshBus.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,6 +52,17 @@
 		A0F9B1D028C8E60000A1E000 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A0F9B1F028C8E60000A1E000 /* PlannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlannerView.swift; sourceTree = "<group>"; };
 		A0F9B1F128C8E60000A1E000 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		A0F9B20628C9001A00A1E000 /* SupabaseModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseModels.swift; sourceTree = "<group>"; };
+		A0F9B20828C9004600A1E000 /* TaskStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskStore.swift; sourceTree = "<group>"; };
+		A0F9B20D28C912FF00A1E000 /* GoalStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalStore.swift; sourceTree = "<group>"; };
+		A0F9B20F28C9130300A1E000 /* HabitStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HabitStore.swift; sourceTree = "<group>"; };
+		A0F9B21128C9130800A1E000 /* NoteStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteStore.swift; sourceTree = "<group>"; };
+		A0F9B21728C917CB00A1E000 /* CategoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryStore.swift; sourceTree = "<group>"; };
+		A0F9B21828C917CF00A1E000 /* ProjectStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectStore.swift; sourceTree = "<group>"; };
+		A0F9B21B28C91AD200A1E000 /* TaskDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailView.swift; sourceTree = "<group>"; };
+		A0F9B21C28C91AD600A1E000 /* HabitDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HabitDetailView.swift; sourceTree = "<group>"; };
+		A0F9B21D28C91ADA00A1E000 /* GoalDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalDetailView.swift; sourceTree = "<group>"; };
+		A0F9B22228C932E200A1E000 /* RefreshBus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshBus.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +121,13 @@
 			children = (
 				A0F9B1C728C8E60000A1E000 /* AppServices.swift */,
 				A0F9B1C828C8E60000A1E000 /* CoachService.swift */,
+				A0F9B20828C9004600A1E000 /* TaskStore.swift */,
+				A0F9B20D28C912FF00A1E000 /* GoalStore.swift */,
+				A0F9B20F28C9130300A1E000 /* HabitStore.swift */,
+				A0F9B21128C9130800A1E000 /* NoteStore.swift */,
+				A0F9B21728C917CB00A1E000 /* CategoryStore.swift */,
+				A0F9B21828C917CF00A1E000 /* ProjectStore.swift */,
+				A0F9B22228C932E200A1E000 /* RefreshBus.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -107,6 +136,7 @@
 			isa = PBXGroup;
 			children = (
 				A0F9B1C928C8E60000A1E000 /* DomainModels.swift */,
+				A0F9B20628C9001A00A1E000 /* SupabaseModels.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -154,6 +184,7 @@
 			isa = PBXGroup;
 			children = (
 				A0F9B1CC28C8E60000A1E000 /* GoalsView.swift */,
+				A0F9B21D28C91ADA00A1E000 /* GoalDetailView.swift */,
 			);
 			path = Goals;
 			sourceTree = "<group>";
@@ -162,6 +193,7 @@
 			isa = PBXGroup;
 			children = (
 				A0F9B1CD28C8E60000A1E000 /* HabitsView.swift */,
+				A0F9B21C28C91AD600A1E000 /* HabitDetailView.swift */,
 			);
 			path = Habits;
 			sourceTree = "<group>";
@@ -186,6 +218,7 @@
 			isa = PBXGroup;
 			children = (
 				A0F9B1F028C8E60000A1E000 /* PlannerView.swift */,
+				A0F9B21B28C91AD200A1E000 /* TaskDetailView.swift */,
 			);
 			path = Planner;
 			sourceTree = "<group>";
@@ -287,6 +320,17 @@
 				A0F9B1DA28C8E60000A1E000 /* CoachView.swift in Sources */,
 				A0F9B1F228C8E60000A1E000 /* PlannerView.swift in Sources */,
 				A0F9B1F328C8E60000A1E000 /* SettingsView.swift in Sources */,
+				A0F9B20728C9001A00A1E000 /* SupabaseModels.swift in Sources */,
+				A0F9B20928C9004600A1E000 /* TaskStore.swift in Sources */,
+				A0F9B21228C9161D00A1E000 /* GoalStore.swift in Sources */,
+				A0F9B21328C9162100A1E000 /* HabitStore.swift in Sources */,
+				A0F9B21428C9162500A1E000 /* NoteStore.swift in Sources */,
+				A0F9B21928C9191B00A1E000 /* CategoryStore.swift in Sources */,
+				A0F9B21A28C9191B00A1E000 /* ProjectStore.swift in Sources */,
+				A0F9B21E28C91C1000A1E000 /* TaskDetailView.swift in Sources */,
+				A0F9B21F28C91C1400A1E000 /* HabitDetailView.swift in Sources */,
+				A0F9B22028C91C1900A1E000 /* GoalDetailView.swift in Sources */,
+				A0F9B22128C932E200A1E000 /* RefreshBus.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

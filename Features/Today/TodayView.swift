@@ -1,58 +1,100 @@
 import SwiftUI
 
 struct TodayView: View {
+    @EnvironmentObject private var services: AppServices
     @State private var mood: Int = 3
     @State private var energy: Int = 3
     @State private var showSettings = false
-    private let tasks = SampleData.tasks
-    private let habits = SampleData.habits
 
     var body: some View {
         NavigationStack {
             List {
+                if let error = services.taskStore.errorMessage {
+                    Section {
+                        Label(error, systemImage: "exclamationmark.triangle")
+                            .foregroundStyle(.red)
+                    }
+                }
+
                 Section("Check-in") {
                     Stepper(value: $mood, in: 1...5) { Label("Stimmung: \(mood)", systemImage: "face.smiling") }
                     Stepper(value: $energy, in: 1...5) { Label("Energie: \(energy)", systemImage: "bolt") }
                 }
 
                 Section("Top Aufgaben") {
-                    ForEach(tasks.prefix(3)) { task in
-                        HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(task.title)
-                                    .font(.headline)
-                                if let goal = task.goal {
-                                    Text(goal.title)
+                    if services.taskStore.isLoading {
+                        ProgressView()
+                    } else if services.taskStore.tasks.isEmpty {
+                        Text("Keine Tasks geladen").foregroundStyle(.secondary)
+                    } else {
+                        ForEach(services.taskStore.tasks.prefix(3)) { task in
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(task.title)
+                                        .font(.headline)
+                                    if let desc = task.description, desc.isEmpty == false {
+                                        Text(desc)
+                                            .font(.subheadline)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    Text(task.status.display)
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
+                                    if let due = task.due {
+                                        Text(due, style: .date)
+                                            .font(.caption2)
+                                            .foregroundStyle(.secondary)
+                                    }
                                 }
+                                Spacer()
+                                StatusBadge(status: task.status)
                             }
-                            Spacer()
-                            StatusBadge(status: task.status)
                         }
                     }
                 }
 
                 Section("Gewohnheiten") {
-                    ForEach(habits) { habit in
-                        HStack {
-                            VStack(alignment: .leading) {
-                                Text(habit.title)
-                                Text("\(habit.cadence) • Streak \(habit.streak)")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                            Spacer()
-                            Button {
-                                // Toggle habit completion stub
-                            } label: {
-                                Image(systemName: "checkmark.circle")
+                    if let error = services.habitStore.errorMessage {
+                        Label(error, systemImage: "exclamationmark.triangle")
+                            .foregroundStyle(.red)
+                    }
+                    if services.habitStore.isLoading {
+                        ProgressView()
+                    } else if services.habitStore.habits.isEmpty {
+                        Text("Keine Gewohnheiten").foregroundStyle(.secondary)
+                    } else {
+                        ForEach(services.habitStore.habits) { habit in
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text(habit.title)
+                                    Text("\(habit.cadence) • Streak \(habit.streak ?? 0)")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                                Button {
+                                    // Toggle habit completion stub
+                                } label: {
+                                    Image(systemName: "checkmark.circle")
+                                }
                             }
                         }
                     }
                 }
             }
             .navigationTitle("Heute")
+            .task {
+                if services.taskStore.tasks.isEmpty {
+                    await services.taskStore.loadTasks()
+                }
+                if services.habitStore.habits.isEmpty {
+                    await services.habitStore.loadHabits()
+                }
+            }
+            .refreshable {
+                await services.taskStore.loadTasks()
+                await services.habitStore.loadHabits()
+            }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
@@ -70,7 +112,7 @@ struct TodayView: View {
 }
 
 private struct StatusBadge: View {
-    let status: FocusTask.Status
+    let status: RemoteTask.Status
 
     var body: some View {
         Text(label)

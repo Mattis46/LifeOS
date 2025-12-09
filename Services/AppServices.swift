@@ -26,6 +26,13 @@ final class AppServices: ObservableObject {
     let config: AppConfig
     let supabase: SupabaseClient
     let coachService: CoachService
+    let taskStore: TaskStore
+    let goalStore: GoalStore
+    let habitStore: HabitStore
+    let noteStore: NoteStore
+    let categoryStore: CategoryStore
+    let projectStore: ProjectStore
+    let refresh = RefreshBus()
 
     init(config: AppConfig = AppConfig()) {
         self.config = config
@@ -38,5 +45,11 @@ final class AppServices: ObservableObject {
             options: options
         )
         coachService = CoachService(endpoint: config.coachEndpoint)
+        taskStore = TaskStore(client: supabase)
+        goalStore = GoalStore(client: supabase)
+        habitStore = HabitStore(client: supabase)
+        noteStore = NoteStore(client: supabase)
+        categoryStore = CategoryStore(client: supabase)
+        projectStore = ProjectStore(client: supabase)
     }
 }
