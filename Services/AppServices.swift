@@ -1,5 +1,6 @@
 import Foundation
 import Supabase
+import Combine
 
 struct AppConfig {
     let supabaseURL: URL
@@ -33,6 +34,7 @@ final class AppServices: ObservableObject {
     let categoryStore: CategoryStore
     let projectStore: ProjectStore
     let refresh = RefreshBus()
+    private var cancellables = Set<AnyCancellable>()
 
     init(config: AppConfig = AppConfig()) {
         self.config = config
@@ -51,5 +53,21 @@ final class AppServices: ObservableObject {
         noteStore = NoteStore(client: supabase)
         categoryStore = CategoryStore(client: supabase)
         projectStore = ProjectStore(client: supabase)
+
+        // Forward Änderungen aus den Stores an SwiftUI, damit Views sofort neu rendern.
+        [
+            taskStore.objectWillChange,
+            goalStore.objectWillChange,
+            habitStore.objectWillChange,
+            noteStore.objectWillChange,
+            categoryStore.objectWillChange,
+            projectStore.objectWillChange
+        ].forEach { publisher in
+            publisher
+                .sink { [weak self] _ in
+                    self?.objectWillChange.send()
+                }
+                .store(in: &cancellables)
+        }
     }
 }

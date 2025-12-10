@@ -86,7 +86,10 @@ struct GoalsView: View {
                             Button("Speichern") {
                                 let title = newGoalTitle.trimmingCharacters(in: .whitespacesAndNewlines)
                                 let notes = newGoalNotes.trimmingCharacters(in: .whitespacesAndNewlines)
-                                Task { await services.goalStore.addGoal(title: title, horizon: newGoalHorizon, notes: notes) }
+                                Task {
+                                    await services.goalStore.addGoal(title: title, horizon: newGoalHorizon, notes: notes)
+                                    await services.goalStore.loadGoals()
+                                }
                                 resetGoalForm()
                                 showAddGoal = false
                             }

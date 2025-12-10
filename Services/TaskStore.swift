@@ -24,6 +24,8 @@ final class TaskStore: ObservableObject {
                 .execute()
                 .value
             tasks = response
+            tasks = Array(tasks)
+            objectWillChange.send()
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -57,6 +59,8 @@ final class TaskStore: ObservableObject {
                 .value
             if let first = inserted.first {
                 tasks.insert(first, at: 0)
+                tasks = Array(tasks)
+                objectWillChange.send()
             }
         } catch {
             errorMessage = error.localizedDescription
@@ -74,9 +78,9 @@ final class TaskStore: ObservableObject {
                 .execute()
                 .value
             if let first = updated.first, let idx = tasks.firstIndex(where: { $0.id == id }) {
-                var copy = tasks
-                copy[idx] = first
-                tasks = copy
+                tasks[idx] = first
+                tasks = Array(tasks)
+                objectWillChange.send()
             }
         } catch {
             errorMessage = error.localizedDescription

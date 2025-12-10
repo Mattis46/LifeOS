@@ -55,6 +55,7 @@ struct GoalDetailView: View {
         )
         Task {
             await services.goalStore.updateGoal(updated)
+            await services.goalStore.loadGoals()
             dismiss()
         }
     }

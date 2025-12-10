@@ -180,6 +180,8 @@ struct PlannerView: View {
                                         categoryId: selectedCategoryId
                                     )
                                     await services.taskStore.loadTasks()
+                                    await services.projectStore.loadProjects()
+                                    await services.categoryStore.loadCategories()
                                 }
                                 resetTaskForm()
                                 showAddTask = false

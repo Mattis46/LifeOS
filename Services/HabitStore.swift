@@ -23,6 +23,8 @@ final class HabitStore: ObservableObject {
                 .order("created_at", ascending: false)
                 .execute()
                 .value
+            habits = Array(habits)
+            objectWillChange.send()
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -40,6 +42,8 @@ final class HabitStore: ObservableObject {
                 .value
             if let first = inserted.first {
                 habits.insert(first, at: 0)
+                habits = Array(habits)
+                objectWillChange.send()
             }
         } catch {
             errorMessage = error.localizedDescription
@@ -57,9 +61,9 @@ final class HabitStore: ObservableObject {
                 .execute()
                 .value
             if let first = updated.first, let idx = habits.firstIndex(where: { $0.id == id }) {
-                var copy = habits
-                copy[idx] = first
-                habits = copy
+                habits[idx] = first
+                habits = Array(habits)
+                objectWillChange.send()
             }
         } catch {
             errorMessage = error.localizedDescription

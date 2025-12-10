@@ -69,6 +69,7 @@ struct HabitDetailView: View {
         )
         Task {
             await services.habitStore.updateHabit(updated)
+            await services.habitStore.loadHabits()
             dismiss()
         }
     }

@@ -95,6 +95,8 @@ struct HabitsView: View {
                     Task {
                         await services.habitStore.addHabit(title: title, cadence: newHabitCadence, goalId: selectedGoalId, categoryId: selectedCategoryId)
                         await services.habitStore.loadHabits()
+                        await services.goalStore.loadGoals()
+                        await services.categoryStore.loadCategories()
                     }
                     resetHabitForm()
                 }

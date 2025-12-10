@@ -23,6 +23,8 @@ final class GoalStore: ObservableObject {
                 .order("created_at", ascending: false)
                 .execute()
                 .value
+            goals = Array(goals)
+            objectWillChange.send()
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -40,6 +42,8 @@ final class GoalStore: ObservableObject {
                 .value
             if let first = inserted.first {
                 goals.insert(first, at: 0)
+                goals = Array(goals)
+                objectWillChange.send()
             }
         } catch {
             errorMessage = error.localizedDescription
@@ -57,9 +61,9 @@ final class GoalStore: ObservableObject {
                 .execute()
                 .value
             if let first = updated.first, let idx = goals.firstIndex(where: { $0.id == id }) {
-                var copy = goals
-                copy[idx] = first
-                goals = copy
+                goals[idx] = first
+                goals = Array(goals)
+                objectWillChange.send()
             }
         } catch {
             errorMessage = error.localizedDescription

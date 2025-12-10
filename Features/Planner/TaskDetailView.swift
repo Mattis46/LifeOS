@@ -107,6 +107,7 @@ struct TaskDetailView: View {
         )
         Task {
             await services.taskStore.updateTask(updated)
+            await services.taskStore.loadTasks()
             dismiss()
         }
     }
