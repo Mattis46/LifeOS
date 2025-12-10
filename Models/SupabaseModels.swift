@@ -76,6 +76,8 @@ struct RemoteGoal: Identifiable, Codable, Hashable {
     let id: UUID?
     var title: String
     var horizon: Horizon
+    var purpose: String?
+    var identityTag: String?
     var notes: String?
     var colorHex: String?
     var icon: String?
@@ -86,7 +88,8 @@ struct RemoteGoal: Identifiable, Codable, Hashable {
     var resolvedIcon: String { icon?.isEmpty == false ? icon! : "target" }
 
     enum CodingKeys: String, CodingKey {
-        case id, title, horizon, notes
+        case id, title, horizon, notes, purpose
+        case identityTag = "identity_tag"
         case colorHex = "color_hex"
         case icon
         case targetDate = "target_date"
@@ -97,6 +100,8 @@ struct RemoteGoal: Identifiable, Codable, Hashable {
         id: UUID? = nil,
         title: String,
         horizon: Horizon,
+        purpose: String? = nil,
+        identityTag: String? = nil,
         notes: String? = nil,
         colorHex: String? = nil,
         icon: String? = nil,
@@ -106,6 +111,8 @@ struct RemoteGoal: Identifiable, Codable, Hashable {
         self.id = id
         self.title = title
         self.horizon = horizon
+        self.purpose = purpose
+        self.identityTag = identityTag
         self.notes = notes
         self.colorHex = colorHex
         self.icon = icon
@@ -118,6 +125,8 @@ struct RemoteGoal: Identifiable, Codable, Hashable {
         id = try container.decodeIfPresent(UUID.self, forKey: .id)
         title = try container.decode(String.self, forKey: .title)
         horizon = try container.decode(Horizon.self, forKey: .horizon)
+        purpose = try container.decodeIfPresent(String.self, forKey: .purpose)
+        identityTag = try container.decodeIfPresent(String.self, forKey: .identityTag)
         notes = try container.decodeIfPresent(String.self, forKey: .notes)
         colorHex = try container.decodeIfPresent(String.self, forKey: .colorHex)
         icon = try container.decodeIfPresent(String.self, forKey: .icon)
@@ -138,6 +147,8 @@ struct RemoteGoal: Identifiable, Codable, Hashable {
         try container.encodeIfPresent(id, forKey: .id)
         try container.encode(title, forKey: .title)
         try container.encode(horizon, forKey: .horizon)
+        try container.encodeIfPresent(purpose, forKey: .purpose)
+        try container.encodeIfPresent(identityTag, forKey: .identityTag)
         try container.encodeIfPresent(notes, forKey: .notes)
         try container.encodeIfPresent(colorHex, forKey: .colorHex)
         try container.encodeIfPresent(icon, forKey: .icon)
@@ -210,5 +221,39 @@ struct RemoteNote: Identifiable, Codable, Hashable {
         case noteType = "note_type"
         case mood, energy, content
         case createdAt = "created_at"
+    }
+}
+
+struct RemoteMilestone: Identifiable, Codable, Hashable {
+    let id: UUID?
+    var goalId: UUID?
+    var title: String
+    var due: Date?
+    var isDone: Bool
+    var createdAt: Date?
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case goalId = "goal_id"
+        case title
+        case due
+        case isDone = "is_done"
+        case createdAt = "created_at"
+    }
+
+    init(
+        id: UUID? = nil,
+        goalId: UUID? = nil,
+        title: String,
+        due: Date? = nil,
+        isDone: Bool = false,
+        createdAt: Date? = nil
+    ) {
+        self.id = id
+        self.goalId = goalId
+        self.title = title
+        self.due = due
+        self.isDone = isDone
+        self.createdAt = createdAt
     }
 }

@@ -63,6 +63,8 @@ final class GoalStore: ObservableObject {
     func addGoal(
         title: String,
         horizon: RemoteGoal.Horizon = .short,
+        purpose: String? = nil,
+        identityTag: String? = nil,
         notes: String? = nil,
         colorHex: String? = "#4F46E5",
         icon: String? = "target",
@@ -72,6 +74,8 @@ final class GoalStore: ObservableObject {
         struct Payload: Encodable {
             let title: String
             let horizon: String
+            let purpose: String?
+            let identity_tag: String?
             let notes: String?
             let color_hex: String?
             let icon: String?
@@ -81,6 +85,8 @@ final class GoalStore: ObservableObject {
             let payload = Payload(
                 title: title,
                 horizon: horizon.rawValue,
+                purpose: purpose,
+                identity_tag: identityTag,
                 notes: notes,
                 color_hex: (colorHex?.isEmpty == false ? colorHex : "#4F46E5"),
                 icon: (icon?.isEmpty == false ? icon : "target"),
@@ -116,6 +122,8 @@ final class GoalStore: ObservableObject {
         struct Payload: Encodable {
             let title: String
             let horizon: String
+            let purpose: String?
+            let identity_tag: String?
             let notes: String?
             let color_hex: String?
             let icon: String?
@@ -125,6 +133,8 @@ final class GoalStore: ObservableObject {
             let payload = Payload(
                 title: goal.title,
                 horizon: goal.horizon.rawValue,
+                purpose: goal.purpose,
+                identity_tag: goal.identityTag,
                 notes: goal.notes,
                 color_hex: (goal.colorHex?.isEmpty == false ? goal.colorHex : "#4F46E5"),
                 icon: (goal.icon?.isEmpty == false ? goal.icon : "target"),

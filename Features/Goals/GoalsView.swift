@@ -6,6 +6,8 @@ struct GoalsView: View {
     @State private var newGoalTitle = ""
     @State private var newGoalNotes = ""
     @State private var newGoalHorizon: RemoteGoal.Horizon = .short
+    @State private var newGoalPurpose = ""
+    @State private var newGoalIdentity = ""
     @State private var newGoalColor: String = GoalPalette.defaults.first ?? "#4F46E5"
     @State private var newGoalIcon: String = "target"
     @State private var includeDeadline = false
@@ -15,8 +17,6 @@ struct GoalsView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    directionWidget
-
                     if let error = services.goalStore.errorMessage {
                         Label(error, systemImage: "exclamationmark.triangle")
                             .foregroundStyle(.red)
@@ -37,33 +37,6 @@ struct GoalsView: View {
                         .frame(maxWidth: .infinity)
                         .padding()
                     } else {
-                        SectionHeader(title: "Heute wichtig")
-                        VStack(spacing: 12) {
-                            ForEach(todayImportantTasks().prefix(3)) { task in
-                                HStack {
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text(task.title)
-                                            .font(.headline)
-                                        if let due = task.due {
-                                            Text(due, style: .date)
-                                                .font(.caption)
-                                                .foregroundStyle(.secondary)
-                                        }
-                                    }
-                                    Spacer()
-                                    GoalStatusBadge(status: task.status)
-                                }
-                                .padding()
-                                .background(.thinMaterial)
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
-                            }
-                            if todayImportantTasks().isEmpty {
-                                Text("Keine dringenden Aufgaben für heute.")
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
-                        .padding(.horizontal, 12)
-
                         goalHorizonSection(title: "Short-Term", goals: goals(for: .short))
                         goalHorizonSection(title: "Mid-Term", goals: goals(for: .mid))
                         goalHorizonSection(title: "Long-Term", goals: goals(for: .long))
@@ -98,6 +71,11 @@ struct GoalsView: View {
                                 }
                             }
                             .pickerStyle(.segmented)
+                        }
+                        Section("Fokus & Identität") {
+                            TextField("Warum / Purpose", text: $newGoalPurpose, axis: .vertical)
+                                .lineLimit(2...4)
+                            TextField("Identität (optional)", text: $newGoalIdentity)
                         }
                         Section("Farbe & Icon") {
                             ScrollView(.horizontal, showsIndicators: false) {
@@ -158,6 +136,8 @@ struct GoalsView: View {
                                     await services.goalStore.addGoal(
                                         title: title,
                                         horizon: newGoalHorizon,
+                                        purpose: newGoalPurpose.trimmingCharacters(in: .whitespacesAndNewlines),
+                                        identityTag: newGoalIdentity.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : newGoalIdentity.trimmingCharacters(in: .whitespacesAndNewlines),
                                         notes: notes,
                                         colorHex: color,
                                         icon: icon,
@@ -188,6 +168,8 @@ struct GoalsView: View {
     private func resetGoalForm() {
         newGoalTitle = ""
         newGoalNotes = ""
+        newGoalPurpose = ""
+        newGoalIdentity = ""
         newGoalHorizon = .short
         newGoalColor = GoalPalette.defaults.first ?? "#4F46E5"
         newGoalIcon = "target"
@@ -403,7 +385,8 @@ extension GoalsView {
         async let g = services.goalStore.loadGoals()
         async let t = services.taskStore.loadTasks()
         async let h = services.habitStore.loadHabits()
-        _ = await (g, t, h)
+        async let m = services.milestoneStore.loadMilestones()
+        _ = await (g, t, h, m)
     }
 
     @MainActor
@@ -412,7 +395,8 @@ extension GoalsView {
             async let g = services.goalStore.loadGoals()
             async let t = services.taskStore.loadTasks()
             async let h = services.habitStore.loadHabits()
-            _ = await (g, t, h)
+            async let m = services.milestoneStore.loadMilestones()
+            _ = await (g, t, h, m)
         } else {
             // Nur Tasks/Habits nachladen, falls leer.
             if services.taskStore.tasks.isEmpty {
@@ -420,6 +404,9 @@ extension GoalsView {
             }
             if services.habitStore.habits.isEmpty {
                 await services.habitStore.loadHabits()
+            }
+            if services.milestoneStore.milestones.isEmpty {
+                await services.milestoneStore.loadMilestones()
             }
         }
     }
@@ -495,6 +482,7 @@ extension GoalsView {
     }
 
     func identityTag(for goal: RemoteGoal) -> String {
+        if let tag = goal.identityTag, tag.isEmpty == false { return tag }
         switch goal.horizon {
         case .short: return "Momentum Builder"
         case .mid: return "Game Changer"
