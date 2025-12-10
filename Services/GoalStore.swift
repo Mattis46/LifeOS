@@ -31,12 +31,29 @@ final class GoalStore: ObservableObject {
         isLoading = false
     }
 
-    func addGoal(title: String, horizon: RemoteGoal.Horizon = .short, notes: String? = nil) async {
+    func addGoal(
+        title: String,
+        horizon: RemoteGoal.Horizon = .short,
+        notes: String? = nil,
+        colorHex: String? = nil,
+        icon: String? = nil,
+        targetDate: Date? = nil
+    ) async {
         guard title.isEmpty == false else { return }
         do {
             let inserted: [RemoteGoal] = try await client
                 .from("goals")
-                .insert(RemoteGoal(id: nil, title: title, horizon: horizon, notes: notes))
+                .insert(
+                    RemoteGoal(
+                        id: nil,
+                        title: title,
+                        horizon: horizon,
+                        notes: notes,
+                        colorHex: colorHex,
+                        icon: icon,
+                        targetDate: targetDate
+                    )
+                )
                 .select()
                 .execute()
                 .value
