@@ -28,7 +28,6 @@
 		A0F9B21328C9162100A1E000 /* HabitStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F9B20F28C9130300A1E000 /* HabitStore.swift */; };
 		A0F9B21428C9162500A1E000 /* NoteStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F9B21128C9130800A1E000 /* NoteStore.swift */; };
 		A0F9B21928C9191B00A1E000 /* CategoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F9B21728C917CB00A1E000 /* CategoryStore.swift */; };
-		A0F9B21A28C9191B00A1E000 /* ProjectStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F9B21828C917CF00A1E000 /* ProjectStore.swift */; };
 		A0F9B21E28C91C1000A1E000 /* TaskDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F9B21B28C91AD200A1E000 /* TaskDetailView.swift */; };
 		A0F9B21F28C91C1400A1E000 /* HabitDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F9B21C28C91AD600A1E000 /* HabitDetailView.swift */; };
 		A0F9B22028C91C1900A1E000 /* GoalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F9B21D28C91ADA00A1E000 /* GoalDetailView.swift */; };
@@ -59,7 +58,6 @@
 		A0F9B20F28C9130300A1E000 /* HabitStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HabitStore.swift; sourceTree = "<group>"; };
 		A0F9B21128C9130800A1E000 /* NoteStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteStore.swift; sourceTree = "<group>"; };
 		A0F9B21728C917CB00A1E000 /* CategoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryStore.swift; sourceTree = "<group>"; };
-		A0F9B21828C917CF00A1E000 /* ProjectStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectStore.swift; sourceTree = "<group>"; };
 		A0F9B21B28C91AD200A1E000 /* TaskDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailView.swift; sourceTree = "<group>"; };
 		A0F9B21C28C91AD600A1E000 /* HabitDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HabitDetailView.swift; sourceTree = "<group>"; };
 		A0F9B21D28C91ADA00A1E000 /* GoalDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalDetailView.swift; sourceTree = "<group>"; };
@@ -128,7 +126,6 @@
 				A0F9B20F28C9130300A1E000 /* HabitStore.swift */,
 				A0F9B21128C9130800A1E000 /* NoteStore.swift */,
 				A0F9B21728C917CB00A1E000 /* CategoryStore.swift */,
-				A0F9B21828C917CF00A1E000 /* ProjectStore.swift */,
 				A0F9B2A028D5000000A1E000 /* MilestoneStore.swift */,
 				A0F9B22228C932E200A1E000 /* RefreshBus.swift */,
 			);
@@ -329,7 +326,6 @@
 				A0F9B21328C9162100A1E000 /* HabitStore.swift in Sources */,
 				A0F9B21428C9162500A1E000 /* NoteStore.swift in Sources */,
 				A0F9B21928C9191B00A1E000 /* CategoryStore.swift in Sources */,
-				A0F9B21A28C9191B00A1E000 /* ProjectStore.swift in Sources */,
 				A0F9B2A128D5000000A1E000 /* MilestoneStore.swift in Sources */,
 				A0F9B21E28C91C1000A1E000 /* TaskDetailView.swift in Sources */,
 				A0F9B21F28C91C1400A1E000 /* HabitDetailView.swift in Sources */,

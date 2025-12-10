@@ -10,7 +10,6 @@ struct TaskDetailView: View {
     @State private var due: Date?
     @State private var includeDue: Bool
     @State private var selectedGoalId: UUID?
-    @State private var selectedProjectId: UUID?
     @State private var selectedCategoryId: UUID?
     @State private var taskStatus: RemoteTask.Status
 
@@ -21,7 +20,6 @@ struct TaskDetailView: View {
         _due = State(initialValue: task.due)
         _includeDue = State(initialValue: task.due != nil)
         _selectedGoalId = State(initialValue: task.goalId)
-        _selectedProjectId = State(initialValue: task.projectId)
         _selectedCategoryId = State(initialValue: task.categoryId)
         _taskStatus = State(initialValue: task.status)
     }
@@ -56,17 +54,11 @@ struct TaskDetailView: View {
                 }
             }
 
-            Section("Ziel / Projekt / Kategorie") {
+            Section("Ziel / Kategorie") {
                 Picker("Ziel", selection: $selectedGoalId) {
                     Text("Kein Ziel").tag(UUID?.none)
                     ForEach(services.goalStore.goals, id: \.id) { goal in
                         Text(goal.title).tag(goal.id)
-                    }
-                }
-                Picker("Projekt", selection: $selectedProjectId) {
-                    Text("Kein Projekt").tag(UUID?.none)
-                    ForEach(services.projectStore.projects, id: \.id) { project in
-                        Text(project.name).tag(project.id)
                     }
                 }
                 Picker("Kategorie", selection: $selectedCategoryId) {
@@ -85,7 +77,6 @@ struct TaskDetailView: View {
         }
         .task {
             if services.goalStore.goals.isEmpty { await services.goalStore.loadGoals() }
-            if services.projectStore.projects.isEmpty { await services.projectStore.loadProjects() }
             if services.categoryStore.categories.isEmpty { await services.categoryStore.loadCategories() }
         }
         .onDisappear {
@@ -102,7 +93,6 @@ struct TaskDetailView: View {
             status: taskStatus,
             due: includeDue ? due : nil,
             goalId: selectedGoalId,
-            projectId: selectedProjectId,
             categoryId: selectedCategoryId
         )
         Task {

@@ -121,7 +121,6 @@ struct GoalDetailView: View {
                                     description: description,
                                     due: due,
                                     goalId: goal.id,
-                                    projectId: nil,
                                     categoryId: nil
                                 )
                                 await services.taskStore.loadTasks()

@@ -32,7 +32,6 @@ final class AppServices: ObservableObject {
     let habitStore: HabitStore
     let noteStore: NoteStore
     let categoryStore: CategoryStore
-    let projectStore: ProjectStore
     let milestoneStore: MilestoneStore
     let refresh = RefreshBus()
     private var cancellables = Set<AnyCancellable>()
@@ -53,7 +52,6 @@ final class AppServices: ObservableObject {
         habitStore = HabitStore(client: supabase)
         noteStore = NoteStore(client: supabase)
         categoryStore = CategoryStore(client: supabase)
-        projectStore = ProjectStore(client: supabase)
         milestoneStore = MilestoneStore(client: supabase)
 
         // Forward Änderungen aus den Stores an SwiftUI, damit Views sofort neu rendern.
@@ -63,7 +61,6 @@ final class AppServices: ObservableObject {
             habitStore.objectWillChange,
             noteStore.objectWillChange,
             categoryStore.objectWillChange,
-            projectStore.objectWillChange,
             milestoneStore.objectWillChange
         ].forEach { publisher in
             publisher

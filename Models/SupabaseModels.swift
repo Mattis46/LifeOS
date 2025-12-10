@@ -20,14 +20,12 @@ struct RemoteTask: Identifiable, Codable, Hashable {
     var status: Status
     var due: Date?
     var goalId: UUID?
-    var projectId: UUID?
     var categoryId: UUID?
     var createdAt: Date?
 
     enum CodingKeys: String, CodingKey {
         case id, title, status, due, description
         case goalId = "goal_id"
-        case projectId = "project_id"
         case categoryId = "category_id"
         case createdAt = "created_at"
     }
@@ -39,7 +37,6 @@ struct RemoteTask: Identifiable, Codable, Hashable {
         status: Status = .open,
         due: Date? = nil,
         goalId: UUID? = nil,
-        projectId: UUID? = nil,
         categoryId: UUID? = nil
     ) {
         self.id = id
@@ -48,7 +45,6 @@ struct RemoteTask: Identifiable, Codable, Hashable {
         self.status = status
         self.due = due
         self.goalId = goalId
-        self.projectId = projectId
         self.categoryId = categoryId
     }
 }
@@ -189,18 +185,6 @@ struct RemoteCategory: Identifiable, Codable, Hashable {
 
     enum CodingKeys: String, CodingKey {
         case id, name
-        case createdAt = "created_at"
-    }
-}
-
-struct RemoteProject: Identifiable, Codable, Hashable {
-    let id: UUID?
-    var name: String
-    var notes: String?
-    var createdAt: Date?
-
-    enum CodingKeys: String, CodingKey {
-        case id, name, notes
         case createdAt = "created_at"
     }
 }

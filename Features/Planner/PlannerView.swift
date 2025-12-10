@@ -8,13 +8,9 @@ struct PlannerView: View {
     @State private var newTaskDue: Date = Date()
     @State private var includeDue = false
     @State private var selectedGoalId: UUID?
-    @State private var selectedProjectId: UUID?
     @State private var selectedCategoryId: UUID?
     @State private var showAddCategory = false
     @State private var newCategoryName = ""
-    @State private var showAddProject = false
-    @State private var newProjectName = ""
-    @State private var newProjectNotes = ""
 
     var body: some View {
         NavigationStack {
@@ -96,9 +92,6 @@ struct PlannerView: View {
                 if services.goalStore.goals.isEmpty {
                     await services.goalStore.loadGoals()
                 }
-                if services.projectStore.projects.isEmpty {
-                    await services.projectStore.loadProjects()
-                }
                 if services.categoryStore.categories.isEmpty {
                     await services.categoryStore.loadCategories()
                 }
@@ -106,7 +99,6 @@ struct PlannerView: View {
             .refreshable {
                 await services.taskStore.loadTasks()
                 await services.goalStore.loadGoals()
-                await services.projectStore.loadProjects()
                 await services.categoryStore.loadCategories()
             }
             .sheet(isPresented: $showAddTask) {
@@ -135,16 +127,6 @@ struct PlannerView: View {
                                     Text(goal.title).tag(goal.id)
                                 }
                             }
-                            Picker("Projekt", selection: Binding(
-                                get: { selectedProjectId },
-                                set: { selectedProjectId = $0 }
-                            )) {
-                                Text("Kein Projekt").tag(UUID?.none)
-                                ForEach(services.projectStore.projects, id: \.id) { project in
-                                    Text(project.name).tag(project.id)
-                                }
-                            }
-                            Button("Projekt hinzufügen") { showAddProject = true }
                             Picker("Kategorie", selection: Binding(
                                 get: { selectedCategoryId },
                                 set: { selectedCategoryId = $0 }
@@ -176,11 +158,9 @@ struct PlannerView: View {
                                         description: description,
                                         due: due,
                                         goalId: selectedGoalId,
-                                        projectId: selectedProjectId,
                                         categoryId: selectedCategoryId
                                     )
                                     await services.taskStore.loadTasks()
-                                    await services.projectStore.loadProjects()
                                     await services.categoryStore.loadCategories()
                                 }
                                 resetTaskForm()
@@ -216,35 +196,6 @@ struct PlannerView: View {
                     }
                 }
             }
-            .sheet(isPresented: $showAddProject) {
-                NavigationStack {
-                    Form {
-                        Section("Projekt") {
-                            TextField("Name", text: $newProjectName)
-                            TextField("Notizen", text: $newProjectNotes, axis: .vertical)
-                                .lineLimit(3, reservesSpace: true)
-                        }
-                    }
-                    .navigationTitle("Projekt hinzufügen")
-                    .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button("Abbrechen") {
-                                resetProjectForm()
-                                showAddProject = false
-                            }
-                        }
-                        ToolbarItem(placement: .confirmationAction) {
-                            Button("Speichern") {
-                                let name = newProjectName.trimmingCharacters(in: .whitespacesAndNewlines)
-                                let notes = newProjectNotes.trimmingCharacters(in: .whitespacesAndNewlines)
-                                Task { await services.projectStore.addProject(name: name, notes: notes) }
-                                resetProjectForm()
-                                showAddProject = false
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 
@@ -254,13 +205,7 @@ struct PlannerView: View {
         includeDue = false
         newTaskDue = Date()
         selectedGoalId = nil
-        selectedProjectId = nil
         selectedCategoryId = nil
-    }
-
-    private func resetProjectForm() {
-        newProjectName = ""
-        newProjectNotes = ""
     }
 }
 

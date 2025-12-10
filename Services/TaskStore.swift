@@ -43,7 +43,6 @@ final class TaskStore: ObservableObject {
         description: String? = nil,
         due: Date? = nil,
         goalId: UUID? = nil,
-        projectId: UUID? = nil,
         categoryId: UUID? = nil
     ) async {
         guard title.isEmpty == false else { return }
@@ -56,7 +55,6 @@ final class TaskStore: ObservableObject {
                         description: description,
                         due: due,
                         goalId: goalId,
-                        projectId: projectId,
                         categoryId: categoryId
                     )
                 )
