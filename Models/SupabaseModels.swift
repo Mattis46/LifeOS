@@ -109,14 +109,20 @@ struct RemoteProject: Identifiable, Codable, Hashable {
 }
 
 struct RemoteNote: Identifiable, Codable, Hashable {
+    enum NoteType: String, Codable { case journal, note }
+
     let id: UUID?
+    var title: String?
+    var noteType: NoteType?
     var mood: Int?
     var energy: Int?
     var content: String?
     var createdAt: Date?
 
     enum CodingKeys: String, CodingKey {
-        case id, mood, energy, content
+        case id, title
+        case noteType = "note_type"
+        case mood, energy, content
         case createdAt = "created_at"
     }
 }
