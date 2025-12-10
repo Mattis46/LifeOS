@@ -27,7 +27,13 @@ final class TaskStore: ObservableObject {
             tasks = Array(tasks)
             objectWillChange.send()
         } catch {
-            errorMessage = error.localizedDescription
+            let nsError = error as NSError
+            let isCancel = (error is CancellationError) || nsError.code == URLError.cancelled.rawValue || nsError.localizedDescription.lowercased() == "cancelled"
+            if isCancel {
+                // Ignoriere Abbruch (z.B. Pull-to-refresh)
+            } else {
+                errorMessage = error.localizedDescription
+            }
         }
         isLoading = false
     }

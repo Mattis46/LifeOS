@@ -15,6 +15,8 @@ struct GoalsView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
+                    directionWidget
+
                     if let error = services.goalStore.errorMessage {
                         Label(error, systemImage: "exclamationmark.triangle")
                             .foregroundStyle(.red)
@@ -35,23 +37,6 @@ struct GoalsView: View {
                         .frame(maxWidth: .infinity)
                         .padding()
                     } else {
-                        TabView {
-                            ForEach(services.goalStore.goals) { goal in
-                                NavigationLink {
-                                    GoalDetailView(goal: goal)
-                                } label: {
-                                    GoalCard(
-                                        goal: goal,
-                                        progress: progress(for: goal),
-                                        nextTask: nextTask(for: goal)
-                                    )
-                                    .padding(.horizontal, 12)
-                                }
-                            }
-                        }
-                        .frame(height: 240)
-                        .tabViewStyle(.page(indexDisplayMode: .automatic))
-
                         SectionHeader(title: "Heute wichtig")
                         VStack(spacing: 12) {
                             ForEach(todayImportantTasks().prefix(3)) { task in
@@ -78,15 +63,17 @@ struct GoalsView: View {
                             }
                         }
                         .padding(.horizontal, 12)
+
+                        goalHorizonSection(title: "Short-Term", goals: goals(for: .short))
+                        goalHorizonSection(title: "Mid-Term", goals: goals(for: .mid))
+                        goalHorizonSection(title: "Long-Term", goals: goals(for: .long))
                     }
                 }
                 .padding(.vertical, 12)
             }
             .navigationTitle("Ziele")
             .refreshable {
-                await services.goalStore.loadGoals()
-                await services.taskStore.loadTasks()
-                await services.habitStore.loadHabits()
+                await refreshAll()
             }
             .toolbar {
                 Button {
@@ -96,15 +83,7 @@ struct GoalsView: View {
                 }
             }
             .task {
-                if services.goalStore.goals.isEmpty {
-                    await services.goalStore.loadGoals()
-                }
-                if services.taskStore.tasks.isEmpty {
-                    await services.taskStore.loadTasks()
-                }
-                if services.habitStore.habits.isEmpty {
-                    await services.habitStore.loadHabits()
-                }
+                await refreshIfNeeded()
             }
             .sheet(isPresented: $showAddGoal) {
                 NavigationStack {
@@ -124,14 +103,18 @@ struct GoalsView: View {
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack {
                                     ForEach(GoalPalette.defaults, id: \.self) { hex in
-                                        Circle()
-                                            .fill(Color(hex: hex))
-                                            .frame(width: 32, height: 32)
-                                            .overlay(
-                                                Circle()
-                                                    .stroke(Color.white, lineWidth: newGoalColor == hex ? 3 : 0)
-                                            )
-                                            .onTapGesture { newGoalColor = hex }
+                                        Button {
+                                            newGoalColor = hex
+                                        } label: {
+                                            Circle()
+                                                .fill(Color(hex: hex))
+                                                .frame(width: 32, height: 32)
+                                                .overlay(
+                                                    Circle()
+                                                        .stroke(Color.white, lineWidth: newGoalColor == hex ? 3 : 0)
+                                                )
+                                        }
+                                        .buttonStyle(.plain)
                                     }
                                 }
                                 .padding(.vertical, 4)
@@ -166,19 +149,26 @@ struct GoalsView: View {
                                 let title = newGoalTitle.trimmingCharacters(in: .whitespacesAndNewlines)
                                 let notes = newGoalNotes.trimmingCharacters(in: .whitespacesAndNewlines)
                                 let targetDate = includeDeadline ? newGoalDate : nil
+                                let color = newGoalColor
+                                let icon = newGoalIcon
+                                #if DEBUG
+                                print("[GoalsView] Save new goal color=\(color) icon=\(icon) title=\"\(title)\"")
+                                #endif
                                 Task {
                                     await services.goalStore.addGoal(
                                         title: title,
                                         horizon: newGoalHorizon,
                                         notes: notes,
-                                        colorHex: newGoalColor,
-                                        icon: newGoalIcon,
+                                        colorHex: color,
+                                        icon: icon,
                                         targetDate: targetDate
                                     )
                                     await services.goalStore.loadGoals()
+                                    await MainActor.run {
+                                        resetGoalForm()
+                                        showAddGoal = false
+                                    }
                                 }
-                                resetGoalForm()
-                                showAddGoal = false
                             }
                         }
                     }
@@ -236,19 +226,19 @@ struct GoalCard: View {
     var body: some View {
         ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: 18)
-                .fill(Color(hex: goal.colorHex ?? "#4F46E5").opacity(0.15))
+                .fill(Color(hex: goal.resolvedColorHex).opacity(0.15))
                 .overlay(
                     RoundedRectangle(cornerRadius: 18)
-                        .stroke(Color(hex: goal.colorHex ?? "#4F46E5").opacity(0.35), lineWidth: 1)
+                        .stroke(Color(hex: goal.resolvedColorHex).opacity(0.35), lineWidth: 1)
                 )
 
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
-                    Image(systemName: goal.icon ?? "target")
-                        .foregroundStyle(Color(hex: goal.colorHex ?? "#4F46E5"))
+                    Image(systemName: goal.resolvedIcon)
+                        .foregroundStyle(Color(hex: goal.resolvedColorHex))
                         .font(.title2)
                     Spacer()
-                    ProgressRing(progress: progress, color: Color(hex: goal.colorHex ?? "#4F46E5"))
+                    ProgressRing(progress: progress, color: Color(hex: goal.resolvedColorHex))
                         .frame(width: 48, height: 48)
                 }
                 Text(goal.title)
@@ -371,4 +361,180 @@ struct GoalStatusBadge: View {
         case .blocked: return .red.opacity(0.2)
         }
     }
+}
+
+struct GoalStats {
+    let progress: Double
+    let doneCount: Int
+    let totalCount: Int
+    let habitStreakSum: Int
+    let nextTask: RemoteTask?
+}
+
+// MARK: - Helpers
+
+extension GoalsView {
+    var directionWidget: some View {
+        let topShort = goals(for: .short).first
+        let topMid = goals(for: .mid).first
+        let topLong = goals(for: .long).first
+        let focusText = [topShort?.title, topMid?.title, topLong?.title].compactMap { $0 }.joined(separator: " • ")
+        return VStack(alignment: .leading, spacing: 8) {
+            Text("Your Direction")
+                .font(.title2).bold()
+            if focusText.isEmpty {
+                Text("Setze ein Ziel, um deinen Fokus festzulegen.")
+                    .foregroundStyle(.secondary)
+            } else {
+                Text("Du arbeitest gerade an \(focusText).")
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 12)
+    }
+
+    func goals(for horizon: RemoteGoal.Horizon) -> [RemoteGoal] {
+        services.goalStore.goals.filter { $0.horizon == horizon }
+    }
+
+    @MainActor
+    func refreshAll() async {
+        async let g = services.goalStore.loadGoals()
+        async let t = services.taskStore.loadTasks()
+        async let h = services.habitStore.loadHabits()
+        _ = await (g, t, h)
+    }
+
+    @MainActor
+    func refreshIfNeeded() async {
+        if services.goalStore.goals.isEmpty {
+            async let g = services.goalStore.loadGoals()
+            async let t = services.taskStore.loadTasks()
+            async let h = services.habitStore.loadHabits()
+            _ = await (g, t, h)
+        } else {
+            // Nur Tasks/Habits nachladen, falls leer.
+            if services.taskStore.tasks.isEmpty {
+                await services.taskStore.loadTasks()
+            }
+            if services.habitStore.habits.isEmpty {
+                await services.habitStore.loadHabits()
+            }
+        }
+    }
+
+    @ViewBuilder
+    func goalHorizonSection(title: String, goals: [RemoteGoal]) -> some View {
+        if goals.isEmpty {
+            EmptyView()
+        } else {
+            VStack(alignment: .leading, spacing: 8) {
+                SectionHeader(title: title)
+                ForEach(goals) { goal in
+                    NavigationLink {
+                        GoalDetailView(goal: goal)
+                    } label: {
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                Label(identityTag(for: goal), systemImage: goal.resolvedIcon)
+                                    .foregroundStyle(Color(hex: goal.resolvedColorHex))
+                                Spacer()
+                                let stats = goalStats(for: goal, services: services)
+                                ProgressRing(progress: stats.progress, color: Color(hex: goal.resolvedColorHex))
+                                    .frame(width: 44, height: 44)
+                            }
+                            Text(goal.title)
+                                .font(.headline)
+                            if let notes = goal.notes, notes.isEmpty == false {
+                                Text(notes)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
+                            let stats = goalStats(for: goal, services: services)
+                            HStack(spacing: 8) {
+                                Label("\(stats.doneCount)/\(stats.totalCount) Wins", systemImage: "checkmark.circle")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                Label("Habits \(stats.habitStreakSum)", systemImage: "flame")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            if let insight = goalCoachInsight(for: goal, stats: stats) {
+                                Text(insight)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            HStack(spacing: 8) {
+                                Button {
+                                    // Kleinster Schritt: hier könnte der Coach später Vorschläge liefern.
+                                } label: {
+                                    Label("Kleinster Schritt", systemImage: "bolt.fill")
+                                        .font(.caption)
+                                }
+                                .buttonStyle(.borderedProminent)
+                                .tint(Color(hex: goal.resolvedColorHex))
+
+                                Button {
+                                    // Coach Suggests placeholder
+                                } label: {
+                                    Label("Coach Suggests", systemImage: "sparkles")
+                                        .font(.caption)
+                                }
+                                .buttonStyle(.bordered)
+                            }
+                        }
+                        .padding()
+                        .background(Color(hex: goal.resolvedColorHex).opacity(0.08))
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                    }
+                    .padding(.horizontal, 12)
+                }
+            }
+        }
+    }
+
+    func identityTag(for goal: RemoteGoal) -> String {
+        switch goal.horizon {
+        case .short: return "Momentum Builder"
+        case .mid: return "Game Changer"
+        case .long: return "Vision Architect"
+        }
+    }
+
+}
+
+// Globale Helper, damit auch GoalDetailView darauf zugreifen kann.
+@MainActor
+func goalStats(for goal: RemoteGoal, services: AppServices) -> GoalStats {
+    guard let goalId = goal.id else {
+        return GoalStats(progress: 0, doneCount: 0, totalCount: 0, habitStreakSum: 0, nextTask: nil)
+    }
+    let tasks = services.taskStore.tasks.filter { $0.goalId == goalId }
+    let done = tasks.filter { $0.status == .done }.count
+    let progress = tasks.isEmpty ? 0 : Double(done) / Double(tasks.count)
+    let habits = services.habitStore.habits.filter { $0.goalId == goalId }
+    let habitStreakSum = habits.compactMap { $0.streak }.reduce(0, +)
+    let nextTask = tasks
+        .filter { $0.status != .done }
+        .sorted { ($0.due ?? Date.distantFuture) < ($1.due ?? Date.distantFuture) }
+        .first
+    return GoalStats(progress: progress, doneCount: done, totalCount: tasks.count, habitStreakSum: habitStreakSum, nextTask: nextTask)
+}
+
+@MainActor
+func goalCoachInsight(for goal: RemoteGoal, stats: GoalStats) -> String? {
+    if stats.totalCount == 0 {
+        return "Starte mit einem kleinsten Schritt, um Momentum aufzubauen."
+    }
+    if stats.progress >= 0.7 {
+        return "Du bist auf Kurs – feiere deine Fortschritte und plane den nächsten Schritt."
+    }
+    if stats.habitStreakSum > 0 {
+        return "Deine Habits zahlen auf dieses Ziel ein. Halte den Streak am Leben."
+    }
+    if let next = stats.nextTask {
+        return "Nächster Schritt: \(next.title)"
+    }
+    return nil
 }

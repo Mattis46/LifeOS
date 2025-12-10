@@ -82,6 +82,9 @@ struct RemoteGoal: Identifiable, Codable, Hashable {
     var targetDate: Date?
     var createdAt: Date?
 
+    var resolvedColorHex: String { colorHex?.isEmpty == false ? colorHex! : "#4F46E5" }
+    var resolvedIcon: String { icon?.isEmpty == false ? icon! : "target" }
+
     enum CodingKeys: String, CodingKey {
         case id, title, horizon, notes
         case colorHex = "color_hex"
