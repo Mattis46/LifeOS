@@ -68,6 +68,18 @@ struct TaskDetailView: View {
                     }
                 }
             }
+
+            Section("Aktionen") {
+                Button(role: .destructive) {
+                    Task {
+                        await services.taskStore.deleteTask(id: task.id)
+                        await services.taskStore.loadTasks()
+                        dismiss()
+                    }
+                } label: {
+                    Label("Aufgabe löschen", systemImage: "trash")
+                }
+            }
         }
         .navigationTitle("Aufgabe")
         .toolbar {

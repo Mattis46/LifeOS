@@ -75,4 +75,20 @@ final class HabitStore: ObservableObject {
             errorMessage = error.localizedDescription
         }
     }
+
+    func deleteHabit(id: UUID?) async {
+        guard let id = id else { return }
+        do {
+            try await client
+                .from("habits")
+                .delete()
+                .eq("id", value: id)
+                .execute()
+            habits.removeAll { $0.id == id }
+            habits = Array(habits)
+            objectWillChange.send()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
 }

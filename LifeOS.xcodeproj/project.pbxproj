@@ -33,6 +33,7 @@
 		A0F9B22028C91C1900A1E000 /* GoalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F9B21D28C91ADA00A1E000 /* GoalDetailView.swift */; };
 		A0F9B22128C932E200A1E000 /* RefreshBus.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F9B22228C932E200A1E000 /* RefreshBus.swift */; };
 		A0F9B2A128D5000000A1E000 /* MilestoneStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F9B2A028D5000000A1E000 /* MilestoneStore.swift */; };
+		A0F9B2B128D53E0000A1E000 /* CalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F9B2B028D53E0000A1E000 /* CalendarService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -63,6 +64,7 @@
 		A0F9B21D28C91ADA00A1E000 /* GoalDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalDetailView.swift; sourceTree = "<group>"; };
 		A0F9B22228C932E200A1E000 /* RefreshBus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshBus.swift; sourceTree = "<group>"; };
 		A0F9B2A028D5000000A1E000 /* MilestoneStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MilestoneStore.swift; sourceTree = "<group>"; };
+		A0F9B2B028D53E0000A1E000 /* CalendarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -127,6 +129,7 @@
 				A0F9B21128C9130800A1E000 /* NoteStore.swift */,
 				A0F9B21728C917CB00A1E000 /* CategoryStore.swift */,
 				A0F9B2A028D5000000A1E000 /* MilestoneStore.swift */,
+				A0F9B2B028D53E0000A1E000 /* CalendarService.swift */,
 				A0F9B22228C932E200A1E000 /* RefreshBus.swift */,
 			);
 			path = Services;
@@ -327,6 +330,7 @@
 				A0F9B21428C9162500A1E000 /* NoteStore.swift in Sources */,
 				A0F9B21928C9191B00A1E000 /* CategoryStore.swift in Sources */,
 				A0F9B2A128D5000000A1E000 /* MilestoneStore.swift in Sources */,
+				A0F9B2B128D53E0000A1E000 /* CalendarService.swift in Sources */,
 				A0F9B21E28C91C1000A1E000 /* TaskDetailView.swift in Sources */,
 				A0F9B21F28C91C1400A1E000 /* HabitDetailView.swift in Sources */,
 				A0F9B22028C91C1900A1E000 /* GoalDetailView.swift in Sources */,

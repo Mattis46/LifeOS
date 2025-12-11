@@ -11,32 +11,36 @@ struct PlannerView: View {
     @State private var selectedCategoryId: UUID?
     @State private var showAddCategory = false
     @State private var newCategoryName = ""
+    @State private var showSettings = false
+    @State private var appearance: AppearanceOption = .system
+    @State private var selectedDay: Date = Calendar.current.startOfDay(for: Date())
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     header
-                    calendarStrip
-                    habitsSection
                     tasksSection
+                    habitsSection
                     goalsSection
-                    journalSection
                 }
                 .padding(.vertical, 12)
+                .padding(.horizontal, 16)
             }
             .navigationTitle("Planer")
             .toolbar {
                 Button {
-                    showAddTask = true
+                    showSettings = true
                 } label: {
-                    Label("Task", systemImage: "plus")
+                    Image(systemName: "gearshape")
                 }
             }
             .task { await loadAllIfNeeded() }
             .refreshable { await refreshAll() }
             .sheet(isPresented: $showAddTask, content: taskSheet)
             .sheet(isPresented: $showAddCategory, content: categorySheet)
+            .sheet(isPresented: $showSettings, content: settingsSheet)
+            .preferredColorScheme(appearance.colorScheme)
         }
     }
 }
@@ -51,36 +55,11 @@ private extension PlannerView {
                 .foregroundStyle(.secondary)
                 .font(.subheadline)
         }
-        .padding(.horizontal, 12)
-    }
-
-    var calendarStrip: some View {
-        let days = upcomingWeek()
-        return GroupBox("Kalender") {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
-                    ForEach(days, id: \.self) { day in
-                        VStack {
-                            Text(day, format: .dateTime.weekday(.abbreviated))
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
-                            Text(day, format: .dateTime.day())
-                                .font(.headline)
-                                .padding(8)
-                                .background(Calendar.current.isDateInToday(day) ? Color.accentColor.opacity(0.15) : Color.secondary.opacity(0.08))
-                                .clipShape(Circle())
-                        }
-                    }
-                }
-                .padding(.vertical, 4)
-            }
-        }
-        .padding(.horizontal, 12)
     }
 
     var habitsSection: some View {
         GroupBox("Habits (Heute / Woche)") {
-            let habits = services.habitStore.habits
+            let habits = habitsForDay(selectedDay)
             if habits.isEmpty {
                 Text("Keine Habits angelegt.")
                     .font(.footnote)
@@ -98,8 +77,20 @@ private extension PlannerView {
                             }
                         }
                         Spacer()
-                        Image(systemName: "flame.fill")
-                            .foregroundStyle(.orange)
+                        HStack(spacing: 4) {
+                            ForEach(0..<7, id: \.self) { idx in
+                                Circle()
+                                    .fill(idx == Calendar.current.component(.weekday, from: selectedDay) - 1 ? Color.accentColor : Color.secondary.opacity(0.15))
+                                    .frame(width: 6, height: 6)
+                            }
+                        }
+                    }
+                    .swipeActions(edge: .trailing) {
+                        Button(role: .destructive) {
+                            Task { await services.habitStore.deleteHabit(id: habit.id) }
+                        } label: {
+                            Label("Löschen", systemImage: "trash")
+                        }
                     }
                 }
                 NavigationLink {
@@ -110,12 +101,11 @@ private extension PlannerView {
                 }
             }
         }
-        .padding(.horizontal, 12)
     }
 
     var tasksSection: some View {
         GroupBox("Tasks") {
-            let buckets = taskBuckets()
+            let buckets = taskBuckets(for: selectedDay)
             VStack(alignment: .leading, spacing: 10) {
                 tasksBucket("Heute", tasks: buckets.today)
                 tasksBucket("Diese Woche", tasks: buckets.week)
@@ -127,7 +117,6 @@ private extension PlannerView {
                 }
             }
         }
-        .padding(.horizontal, 12)
     }
 
     var goalsSection: some View {
@@ -164,7 +153,6 @@ private extension PlannerView {
                 }
             }
         }
-        .padding(.horizontal, 12)
     }
 
     var journalSection: some View {
@@ -189,10 +177,10 @@ private extension PlannerView {
     }
 
     func refreshAll() async {
-        async let t = services.taskStore.loadTasks()
-        async let g = services.goalStore.loadGoals()
-        async let h = services.habitStore.loadHabits()
-        async let c = services.categoryStore.loadCategories()
+        async let t: Void = services.taskStore.loadTasks()
+        async let g: Void = services.goalStore.loadGoals()
+        async let h: Void = services.habitStore.loadHabits()
+        async let c: Void = services.categoryStore.loadCategories()
         _ = await (t, g, h, c)
     }
 
@@ -202,12 +190,12 @@ private extension PlannerView {
         return (0..<7).compactMap { cal.date(byAdding: .day, value: $0, to: today) }
     }
 
-    func taskBuckets() -> (today: [RemoteTask], week: [RemoteTask], later: [RemoteTask]) {
+    func taskBuckets(for day: Date) -> (today: [RemoteTask], week: [RemoteTask], later: [RemoteTask]) {
         let calendar = Calendar.current
-        let now = Date()
-        let endOfWeek = calendar.date(byAdding: .day, value: 7, to: now) ?? now
+        let today = calendar.startOfDay(for: day)
+        let endOfWeek = calendar.date(byAdding: .day, value: 7, to: today) ?? today
         let tasks = services.taskStore.tasks
-        var today: [RemoteTask] = []
+        var todayTasks: [RemoteTask] = []
         var week: [RemoteTask] = []
         var later: [RemoteTask] = []
         for task in tasks {
@@ -215,19 +203,33 @@ private extension PlannerView {
                 later.append(task)
                 continue
             }
-            if calendar.isDateInToday(due) {
-                today.append(task)
-            } else if due <= endOfWeek {
+            if calendar.isDate(due, inSameDayAs: today) {
+                todayTasks.append(task)
+            } else if due > today && due <= endOfWeek {
                 week.append(task)
             } else {
                 later.append(task)
             }
         }
-        let sorter: (RemoteTask, RemoteTask) -> Bool = { ($0.due ?? now) < ($1.due ?? now) }
-        today.sort(by: sorter)
+        let sorter: (RemoteTask, RemoteTask) -> Bool = { ($0.due ?? today) < ($1.due ?? today) }
+        todayTasks.sort(by: sorter)
         week.sort(by: sorter)
         later.sort(by: sorter)
-        return (today, week, later)
+        return (todayTasks, week, later)
+    }
+
+    func habitsForDay(_ day: Date) -> [RemoteHabit] {
+        // Noch keine Tageslogik, daher alle Habits. (Hook für später, wenn Habit-Schedule kommt.)
+        return services.habitStore.habits
+    }
+
+    func resetTaskForm() {
+        newTaskTitle = ""
+        newTaskDescription = ""
+        includeDue = false
+        newTaskDue = Date()
+        selectedGoalId = nil
+        selectedCategoryId = nil
     }
 
     @ViewBuilder
@@ -257,6 +259,13 @@ private extension PlannerView {
                         }
                         Spacer()
                         PlannerStatusBadge(status: task.status)
+                    }
+                }
+                .swipeActions(edge: .trailing) {
+                    Button(role: .destructive) {
+                        Task { await services.taskStore.deleteTask(id: task.id) }
+                    } label: {
+                        Label("Löschen", systemImage: "trash")
                     }
                 }
             }
@@ -365,4 +374,77 @@ private extension PlannerView {
             }
         }
     }
+
+    @ViewBuilder
+    func settingsSheet() -> some View {
+        NavigationStack {
+            Form {
+                Section("Darstellung") {
+                    Picker("Theme", selection: $appearance) {
+                        Text("System").tag(AppearanceOption.system)
+                        Text("Hell").tag(AppearanceOption.light)
+                        Text("Dunkel").tag(AppearanceOption.dark)
+                    }
+                    .pickerStyle(.segmented)
+                }
+            }
+            .navigationTitle("Einstellungen")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Schließen") { showSettings = false }
+                }
+            }
+        }
+    }
+
 }
+
+private enum AppearanceOption: String, CaseIterable, Identifiable {
+    case system, light, dark
+    var id: String { rawValue }
+
+    var colorScheme: ColorScheme? {
+        switch self {
+        case .system: return nil
+        case .light: return .light
+        case .dark: return .dark
+        }
+    }
+}
+
+private struct PlannerStatusBadge: View {
+    let status: RemoteTask.Status
+
+    var body: some View {
+        Text(label)
+            .font(.caption2)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(background)
+            .clipShape(Capsule())
+    }
+
+    private var label: String {
+        switch status {
+        case .open: return "Offen"
+        case .inProgress: return "Läuft"
+        case .done: return "Fertig"
+        case .blocked: return "Blockiert"
+        }
+    }
+
+    private var background: Color {
+        switch status {
+        case .open: return .gray.opacity(0.15)
+        case .inProgress: return .blue.opacity(0.2)
+        case .done: return .green.opacity(0.2)
+        case .blocked: return .red.opacity(0.2)
+        }
+    }
+}
+
+private let timeFormatter: DateFormatter = {
+    let df = DateFormatter()
+    df.timeStyle = .short
+    return df
+}()

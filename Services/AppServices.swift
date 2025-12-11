@@ -33,6 +33,7 @@ final class AppServices: ObservableObject {
     let noteStore: NoteStore
     let categoryStore: CategoryStore
     let milestoneStore: MilestoneStore
+    let calendarService: CalendarService
     let refresh = RefreshBus()
     private var cancellables = Set<AnyCancellable>()
 
@@ -53,6 +54,7 @@ final class AppServices: ObservableObject {
         noteStore = NoteStore(client: supabase)
         categoryStore = CategoryStore(client: supabase)
         milestoneStore = MilestoneStore(client: supabase)
+        calendarService = CalendarService()
 
         // Forward Änderungen aus den Stores an SwiftUI, damit Views sofort neu rendern.
         [
@@ -61,7 +63,8 @@ final class AppServices: ObservableObject {
             habitStore.objectWillChange,
             noteStore.objectWillChange,
             categoryStore.objectWillChange,
-            milestoneStore.objectWillChange
+            milestoneStore.objectWillChange,
+            calendarService.objectWillChange
         ].forEach { publisher in
             publisher
                 .sink { [weak self] _ in

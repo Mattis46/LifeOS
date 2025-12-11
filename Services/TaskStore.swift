@@ -90,4 +90,20 @@ final class TaskStore: ObservableObject {
             errorMessage = error.localizedDescription
         }
     }
+
+    func deleteTask(id: UUID?) async {
+        guard let id = id else { return }
+        do {
+            try await client
+                .from("tasks")
+                .delete()
+                .eq("id", value: id)
+                .execute()
+            tasks.removeAll { $0.id == id }
+            tasks = Array(tasks)
+            objectWillChange.send()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
 }

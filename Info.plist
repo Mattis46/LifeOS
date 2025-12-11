@@ -41,6 +41,8 @@
 	<true/>
 	<key>UILaunchScreen</key>
 	<dict/>
+	<key>NSCalendarsUsageDescription</key>
+	<string>Benötigt, um deine iPhone-Kalender-Events im Planner anzuzeigen.</string>
 	<key>SUPABASE_URL</key>
 	<string>https://pouvvplxfrnpthhdednl.supabase.co</string>
 	<key>SUPABASE_ANON_KEY</key>
